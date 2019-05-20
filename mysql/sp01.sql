@@ -66,10 +66,10 @@ DECLARE idx_total int(11);
 SET idx_now = 1055;
 SELECT count(*) INTO idx_total from
   (SELECT *
-  FROM pnsoft.payment_history_tbl A
+  FROM payment_history_tbl A
   WHERE A.loan_code in (
     SELECT loan_code 
-    FROM pnsoft.payment_history_tbl
+    FROM payment_history_tbl
     WHERE loan_status in (40, 41, 50, 51, 52))
   GROUP BY A.loan_code having count(*) = 1) AA;
 
@@ -82,10 +82,10 @@ WHILE (idx_now < idx_total) DO
     Xprincipal, Xinterest, Xoverdue_interest, Xprincipal_before, Xinterest_before, Xoverdue_interest_before, Xprincipal_repay, 
     Xinterest_repay, Xoverdue_interest_repay, Xgrace_day, Xpast_day, Xloan_start_date, Xloan_end_date, Xloan_update_date, 
     Xloan_status, Xloan_comment
-  FROM pnsoft.payment_history_tbl A
+  FROM payment_history_tbl A
   WHERE A.loan_code in (
     SELECT loan_code 
-    FROM pnsoft.payment_history_tbl
+    FROM payment_history_tbl
     WHERE loan_status in (40, 41, 50, 51, 52) GROUP BY A.loan_code having count(*) = 1)
     ORDER BY idx
   LIMIT idx_now, 1;
@@ -110,7 +110,7 @@ WHILE (idx_now < idx_total) DO
     END IF;
 
     IF Xpast_day > -4 THEN
-      INSERT INTO pnsoft.payment_history_tbl 
+      INSERT INTO payment_history_tbl 
         (loan_idx, loan_code, product_name, interest_cking_min, loan_period, interest_over_per, interest_over_rp, interest_over, 
         principal, interest, overdue_interest, principal_before, interest_before, overdue_interest_before, principal_repay, 
         interest_repay, overdue_interest_repay, grace_day, past_day, loan_start_date, loan_end_date, loan_update_date, 
@@ -133,17 +133,17 @@ END;
 
 
 select *
-  FROM pnsoft.payment_history_tbl A
+  FROM payment_history_tbl A
   WHERE A.loan_code in (
     SELECT loan_code 
-    FROM pnsoft.payment_history_tbl
+    FROM payment_history_tbl
     WHERE loan_status in (40, 41, 50, 51, 52) GROUP BY A.loan_code having count(*) = 1)
     ORDER BY idx
 
 
 // 론코드 중복인거 찾기
 SELECT loan_code, count(1)
-FROM pnsoft.payment_history_tbl A
+FROM payment_history_tbl A
 WHERE loan_status in (40, 41, 50, 51, 52) 
 GROUP BY A.loan_code having count(*) > 1
 
