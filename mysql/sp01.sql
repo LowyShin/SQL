@@ -1,18 +1,4 @@
-select dd.regdt, l.*
-from tDefDate dd 
-left outer join (
-  SELECT DATE_FORMAT(loan_update_date,'%Y/%m/%d') as lregdt
-      , sum(ls.loan_amount) as loandb_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
-      , sum(l.loan_amount) as newdxtra_amount , sum(case when l.loan_amount > 0 then 1 else 0 end) as loandb_account
-      , sum(ls.loan_amount) as newdana_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
-      , sum(case when Xpast_day > 3 then ls.loan_amout else 0 end ) as probacc_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
-      , sum(ls.loan_amount) as npl_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
-  from payment_history_tbl ph
-  left outer join loan_status_tbl ls on ph.loan_idx = ls.loan_idx
-  left outer join loan_tbl l on ph.loan_idx = l.loan_idx
-  group by DATE_FORMAT(loan_update_date,'%Y/%m/%d')
- ) l on dd.regdt = l.lregdt
-  
+/*-- KPI Table */
 create table tkpi(
   regdate datetime
   , loandb_amount bigint
@@ -27,11 +13,31 @@ create table tkpi(
   , npl_account bigint
 )
 
+/* Base date table */
 create table tDefDate(
   regdt varchar(8)
 )
 
+/* KPI Query */
 
+select dd.regdt, l.*
+from tDefDate dd 
+left outer join (
+  SELECT DATE_FORMAT(loan_update_date,'%Y/%m/%d') as lregdt
+      , sum(ls.loan_amount) as loandb_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
+      , sum(l.loan_amount) as newdxtra_amount , sum(case when l.loan_amount > 0 then 1 else 0 end) as loandb_account
+      , sum(ls.loan_amount) as newdana_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
+      , sum(case when Xpast_day > 3 then ls.loan_amout else 0 end ) as probacc_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
+      , sum(ls.loan_amount) as npl_amount , sum(case when ls.loan_amount > 0 then 1 else 0 end) as loandb_account
+  from payment_history_tbl ph
+  left outer join loan_status_tbl ls on ph.loan_idx = ls.loan_idx
+  left outer join loan_tbl l on ph.loan_idx = l.loan_idx
+  group by DATE_FORMAT(loan_update_date,'%Y/%m/%d')
+ ) l on dd.regdt = l.lregdt
+
+
+
+/*-- not recommand example ----------*/
 DELIMITER //  
 CREATE PROCEDURE proc_payment_fill_onprogress()   
 BEGIN
